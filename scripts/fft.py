@@ -8,6 +8,7 @@ def dft(image_path: str, gamma: float =1) -> np.ndarray:
 
     :param str image_path: The path to the image file.
     :param float gamma: The gamma value to apply to the magnitude spectrum.
+    :return np.ndarray: The magnitude spectrum of the image.
     '''
 
     # Read the image in grayscale
@@ -32,3 +33,13 @@ def dft(image_path: str, gamma: float =1) -> np.ndarray:
     magnitude_spectrum = np.power(magnitude_spectrum, gamma)
 
     return magnitude_spectrum
+
+
+
+def inverse_dft(dft: np.ndarray) -> np.ndarray:
+    '''Compute the inverse Discrete Fourier Transform of an image.
+
+    :param np.ndarray dft: The Discrete Fourier Transform of the image.
+    :return np.ndarray: The inverse Discrete Fourier Transform of the image.
+    '''
+    pass
