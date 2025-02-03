@@ -1,5 +1,4 @@
 import configparser
-import tkinter as tk
 
 from app import Application
 

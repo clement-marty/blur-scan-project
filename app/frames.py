@@ -1,6 +1,6 @@
 import tkinter as tk
 import numpy as np
-from PIL import Image, ImageTk, ImageDraw
+from PIL import Image, ImageTk
 
 from scripts import fft, mask
 from .button_handler import blank_frame_file_dialog, processing_fft_btn, processing_fft_update_btn, processing_fft_mask_btn, processing_fft_ifft_btn
@@ -269,7 +269,7 @@ class IFFTFrame(CustomFrame):
         empty_widget.place(relx=.05, rely=.05, relwidth=.9, relheight=.7)
 
         print(self.master.master.selected_image_path)
-        dft, magnitude_spectrum = fft.dft(self.master.master.selected_image_path)
+        dft, _ = fft.dft(self.master.master.selected_image_path)
         masked_dft = mask.apply_circular_mask(dft, mask_radius)
         idft = fft.inverse_dft(masked_dft)
         print(np.min(idft), np.max(idft))

@@ -28,7 +28,7 @@ def dft(image_path: str, gamma: float =1) -> tuple[np.ndarray, np.ndarray]:
     magnitude_spectrum = np.multiply(magnitude_spectrum, 255 / magnitude_spectrum.max())
     magnitude_spectrum = np.power(magnitude_spectrum, 1/gamma)
 
-    return dft_shift, (magnitude_spectrum *255).astype(np.uint8)
+    return dft_shift, (magnitude_spectrum * 255).astype(np.uint8)
 
 
 
@@ -46,18 +46,3 @@ def inverse_dft(dft: np.ndarray) -> np.ndarray:
     img = np.abs(idft)
 
     return img
-
-
-
-
-# import matplotlib.pyplot as plt
-
-# a, b = dft('/mnt/DEV2/blur-scan-project/images/Bis_Mag_2000_P_0_DW_1e-6_1675162602_res_1536x1024/focus_0.tif')
-# c = inverse_dft(a)
-
-
-# plt.subplot(121)
-# plt.imshow(cv2.imread('/mnt/DEV2/blur-scan-project/images/Bis_Mag_2000_P_0_DW_1e-6_1675162602_res_1536x1024/focus_0.tif'), cmap = 'gray')
-# plt.subplot(122)
-# plt.imshow(c, cmap = 'gray')
-# plt.show()

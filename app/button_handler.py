@@ -15,8 +15,6 @@ def _image_path_display(image_path: str, max_length = 80) -> str:
 
 
 
-
-
 def blank_frame_file_dialog(app: tk.Tk):
     image_path = filedialog.askopenfilename(filetypes=[('Image Files', '*.png *.jpg *.jpeg *.tif')])
     if image_path:
