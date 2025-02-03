@@ -1,9 +1,9 @@
 import tkinter as tk
 import numpy as np
-from PIL import Image, ImageTk
+from PIL import Image, ImageTk, ImageDraw
 
-from scripts import fft
-from .button_handler import blank_frame_file_dialog, processing_fft_update_btn
+from scripts import fft, mask
+from .button_handler import blank_frame_file_dialog, processing_fft_btn, processing_fft_update_btn, processing_fft_mask_btn, processing_fft_ifft_btn
 
 
 
@@ -20,21 +20,26 @@ class CustomFrame(tk.Frame):
             im = Image.fromarray(image)
         if grayscale:
             im = im.convert('L')
-        
-        # Apply zoom
-        w, h = im.size
-        im = im.resize((int(im.width*zoom), int(im.height*zoom)), resample=Image.Resampling.NEAREST)
-        new_w, new_h = im.size
-        im = im.crop((new_w//2-w//2, new_h//2-h//2, new_w//2+w//2, new_h//2+h//2))
 
+        
         scale_w = self.winfo_width()*relwidth/im.width
         scale_h = self.winfo_height()*relheight/im.height
 
-        if zoom == 1:
-            scaling_factor = min(scale_w, scale_h)
-            im = im.resize((int(im.width*scaling_factor), int(im.height*scaling_factor)), resample=Image.Resampling.NEAREST)
-        else:
-            im = im.resize((int(im.width*scale_w), int(im.height*scale_h)), resample=Image.Resampling.NEAREST)
+        scaling_factor = min(scale_w, scale_h)
+        im = im.resize((int(im.width*scaling_factor*zoom), int(im.height*scaling_factor*zoom)), resample=Image.Resampling.NEAREST)
+
+        crop_box = (
+            im.width//2-self.winfo_width()*relwidth//2,
+            im.height//2-self.winfo_height()*relheight//2,
+            im.width//2+self.winfo_width()*relwidth//2,
+            im.height//2+self.winfo_height()*relheight//2
+        )
+        # Prevent cropping outside of image bounds
+        if crop_box[0] < 0:
+            crop_box = (0, crop_box[1], im.width, crop_box[3])
+        if crop_box[1] < 0:
+            crop_box = (crop_box[0], 0, crop_box[2], im.height)
+        im = im.crop(crop_box)
 
         imtk = ImageTk.PhotoImage(im)
         widget = tk.Label(self, image=imtk, bg=self.color_palette['background'])
@@ -91,7 +96,7 @@ class FFTFrame(CustomFrame):
         self.gamma_slider = tk.Scale(
             self.settings_menu,
             from_=.5,
-            to=1,
+            to=1.5,
             resolution=.05,
             orient='horizontal',
             bg=self.color_palette['popup'],
@@ -140,12 +145,13 @@ class FFTFrame(CustomFrame):
         update_btn.place(relx=.75, rely=.1, relwidth=.2, relheight=.35)
 
         inverse_btn = tk.Button(self.settings_menu, text='Inverse FFT', font=("Arial", 12), bd=0, bg=self.color_palette['popup'], cursor='hand2', activebackground=self.color_palette['header'])
+        inverse_btn.config(command=lambda: processing_fft_mask_btn(self.master.master))
         inverse_btn.place(relx=.75, rely=.55, relwidth=.2, relheight=.35)
 
 
     def update(self, image_path):
 
-        self.dft = fft.dft(image_path, gamma=self.gamma_slider.get())
+        self.dft = fft.dft(image_path, gamma=self.gamma_slider.get())[1]
 
         empty_widget = tk.Label(self, bg=self.color_palette['background'])
         empty_widget.place(relx=.05, rely=.05, relwidth=.9, relheight=.7)
@@ -165,3 +171,109 @@ class FFTFrame(CustomFrame):
 
             dft_widget = self.get_image_widget(image=self.dft, relwidth=.9, relheight=.7, zoom=self.zoom_slider.get())
             dft_widget.place(relx=.05, rely=.05, relwidth=.9, relheight=.7)
+
+
+
+class MaskFrame(CustomFrame):
+
+    def __init__(self, parent, controller):
+        super().__init__(parent, controller)
+
+        self.dft: np.ndarray = None
+
+        self.settings_menu = tk.Frame(self, bg=self.color_palette['popup'])
+        self.settings_menu.place(relx=0, rely=.8, relwidth=1, relheight=.2)
+
+        radius_label = tk.Label(self.settings_menu, text='Mask radius (%):', font=("Arial", 12), bg=self.color_palette['popup'])
+        radius_label.place(relx=.05, rely=.3, anchor='w')
+        self.radius_slider = tk.Scale(
+            self.settings_menu,
+            from_=0,
+            to=100,
+            resolution=1,
+            orient='horizontal',
+            bg=self.color_palette['popup'],
+            bd=0,
+            cursor='hand2',
+            activebackground=self.color_palette['header'],
+            highlightthickness=0,
+            troughcolor=self.color_palette['header']
+        )
+        self.radius_slider.set(0)
+        self.radius_slider.place(relx=.2, rely=.1, relwidth=.5, relheight=.4)
+
+        zoom_label = tk.Label(self.settings_menu, text='Zoom:', font=("Arial", 12), bg=self.color_palette['popup'])
+        zoom_label.place(relx=.05, rely=.8, anchor='w')
+        self.zoom_slider = tk.Scale(
+            self.settings_menu,
+            from_=1,
+            to=10,
+            resolution=.5,
+            orient='horizontal',
+            bg=self.color_palette['popup'],
+            bd=0,
+            cursor='hand2',
+            activebackground=self.color_palette['header'],
+            highlightthickness=0,
+            troughcolor=self.color_palette['header']
+        )
+        self.zoom_slider.set(1)
+        self.zoom_slider.place(relx=.2, rely=.6, relwidth=.5, relheight=.4)
+
+        self.radius_slider.bind("<ButtonRelease-1>", lambda _: self.update(self.dft))
+        self.zoom_slider.bind("<ButtonRelease-1>", lambda _: self.update(self.dft))
+
+        confirm_btn = tk.Button(self.settings_menu, text='Confirm', font=("Arial", 12), bd=0, bg=self.color_palette['popup'], cursor='hand2', activebackground=self.color_palette['header'])
+        confirm_btn.config(command=lambda: processing_fft_ifft_btn(self.master.master))
+        confirm_btn.place(relx=.75, rely=.1, relwidth=.2, relheight=.35)
+
+        back_btn = tk.Button(self.settings_menu, text='Back', font=("Arial", 12), bd=0, bg=self.color_palette['popup'], cursor='hand2', activebackground=self.color_palette['header'])
+        back_btn.config(command=lambda: processing_fft_btn(self.master.master))
+        back_btn.place(relx=.75, rely=.55, relwidth=.2, relheight=.35)
+
+
+    def update(self, dft: np.ndarray):
+        self.dft = dft
+
+        empty_widget = tk.Label(self, bg=self.color_palette['background'])
+        empty_widget.place(relx=.05, rely=.05, relwidth=.9, relheight=.7)
+
+        self.mask_radius = self.radius_slider.get()
+        if self.mask_radius != 0:
+            self.masked_dft = mask.apply_circular_mask(dft, self.mask_radius)
+        else:
+            self.masked_dft = dft
+        
+        widget = self.get_image_widget(image=self.masked_dft, relwidth=.9, relheight=.7, zoom=self.zoom_slider.get())
+        widget.place(relx=.05, rely=.05, relwidth=.9, relheight=.7)
+
+
+
+class IFFTFrame(CustomFrame):
+
+    def __init__(self, parent, controller):
+        super().__init__(parent, controller)
+
+        self.settings_menu = tk.Frame(self, bg=self.color_palette['popup'])
+        self.settings_menu.place(relx=0, rely=.8, relwidth=1, relheight=.2)
+
+        back_btn = tk.Button(self.settings_menu, text='Back', font=("Arial", 12), bd=0, bg=self.color_palette['popup'], cursor='hand2', activebackground=self.color_palette['header'])
+        back_btn.config(command=lambda: processing_fft_mask_btn(self.master.master))
+        back_btn.place(relx=.75, rely=.55, relwidth=.2, relheight=.35)
+
+
+    def update(self, dft: np.ndarray, mask_radius: int):
+        self.mask_radius = mask_radius
+
+        empty_widget = tk.Label(self, bg=self.color_palette['background'])
+        empty_widget.place(relx=.05, rely=.05, relwidth=.9, relheight=.7)
+
+        print(self.master.master.selected_image_path)
+        dft, magnitude_spectrum = fft.dft(self.master.master.selected_image_path)
+        masked_dft = mask.apply_circular_mask(dft, mask_radius)
+        idft = fft.inverse_dft(masked_dft)
+        print(np.min(idft), np.max(idft))
+
+        img = fft.inverse_dft(mask.apply_circular_mask(fft.dft(self.master.master.selected_image_path)[0], mask_radius))
+        widget = self.get_image_widget(image=idft, relwidth=.9, relheight=.7)
+        widget.place(relx=.05, rely=.05, relwidth=.9, relheight=.7)
