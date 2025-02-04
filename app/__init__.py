@@ -13,7 +13,8 @@ class Application(tk.Tk):
         tk.Tk.__init__(self)
 
         title = config.get('application', 'title')
-        subtitle = config.get('application', 'subtitle')
+        subtitle_line1 = config.get('application', 'subtitle_1')
+        subtitle_line2 = config.get('application', 'subtitle_2')
         icon_file = config.get('application', 'icon')
         self.color_palette = {
             'background': config.get('application.color_palette', 'background'),
@@ -61,9 +62,9 @@ class Application(tk.Tk):
         # Logo
         self.logo_frame = tk.Frame(self.sidebar, bg=self.color_palette['sidebar'])
         self.logo_frame.place(relx=0, rely=0, relwidth=1, relheight=.15)
-        self.logo_image = icon.subsample(9)
+        self.logo_image = icon.subsample(4)
         logo = tk.Label(self.logo_frame, image=self.logo_image, bg=self.color_palette['sidebar'])
-        logo.place(x=5, y=20)
+        logo.place(x=15, y=15)
 
         # Title
         tk.Label(
@@ -76,11 +77,18 @@ class Application(tk.Tk):
         # Subtitle
         tk.Label(
             self.logo_frame,
-            text=subtitle,
+            text=subtitle_line1,
             bg=self.color_palette['sidebar'],
             font=('', 12, 'bold'),
             fg='#ffffff'
         ).place(x=55, y=55, anchor='w')
+        tk.Label(
+            self.logo_frame,
+            text=subtitle_line2,
+            bg=self.color_palette['sidebar'],
+            font=('', 12, 'bold'),
+            fg='#ffffff'
+        ).place(x=55, y=80, anchor='w')
 
 
         # SUBMENUS
