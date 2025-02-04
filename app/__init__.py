@@ -1,3 +1,4 @@
+import webbrowser
 import configparser
 import tkinter as tk
 from tkinter import ttk
@@ -16,6 +17,7 @@ class Application(tk.Tk):
         subtitle_line1 = config.get('application', 'subtitle_1')
         subtitle_line2 = config.get('application', 'subtitle_2')
         icon_file = config.get('application', 'icon')
+        github_link = config.get('application', 'github_link')
         self.color_palette = {
             'background': config.get('application.color_palette', 'background'),
             'sidebar': config.get('application.color_palette', 'sidebar'),
@@ -115,6 +117,31 @@ class Application(tk.Tk):
         )
         processing_submenu.options['Fourier Transform (FFT)'].config(command=lambda: processing_fft_btn(self))
         processing_submenu.place(x=0, y=150, relwidth=1, relheight=.3)
+
+
+        # FOOTER
+        footer = tk.Frame(self.sidebar, bg=self.color_palette['sidebar'], cursor='hand2')
+        label1 = tk.Label(
+            footer,
+            text='Source code available on GitHub',
+            bg=self.color_palette['sidebar'],
+            font=('', 10, 'bold'),
+            fg='#ffffff'
+        )
+        label2 = tk.Label(
+            footer,
+            text='[click here]',
+            bg=self.color_palette['sidebar'],
+            font=('', 10, 'bold'),
+            fg='#ffffff',
+        )
+        footer.bind("<Button-1>", lambda _: webbrowser.open(github_link))
+        label1.bind("<Button-1>", lambda _: webbrowser.open(github_link))
+        label2.bind("<Button-1>", lambda _: webbrowser.open(github_link))
+        footer.place(relx=0, rely=.9, relwidth=1, relheight=.1)
+        label1.place(relx=0, rely=.2, relwidth=1, relheight=.3)
+        label2.place(relx=0, rely=.5, relwidth=1, relheight=.3)
+        
 
 
         # Page frames
