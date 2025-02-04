@@ -64,9 +64,9 @@ class Application(tk.Tk):
         # Logo
         self.logo_frame = tk.Frame(self.sidebar, bg=self.color_palette['sidebar'])
         self.logo_frame.place(relx=0, rely=0, relwidth=1, relheight=.15)
-        self.logo_image = icon.subsample(4)
+        self.logo_image = icon.subsample(7)
         logo = tk.Label(self.logo_frame, image=self.logo_image, bg=self.color_palette['sidebar'])
-        logo.place(x=15, y=15)
+        logo.place(x=15, y=20)
 
         # Title
         tk.Label(
