@@ -68,6 +68,7 @@ class BlankFrame(CustomFrame):
             bg=self.color_palette['popup'],
             cursor='hand2',
             activebackground=self.color_palette['header'],
+            borderwidth=1,
             command=lambda: blank_frame_file_dialog(self.master.master)
         )
         button.place(relx=.3, rely=.65, relwidth=.4, relheight=.2)
@@ -140,11 +141,11 @@ class FFTFrame(CustomFrame):
         self.zoom_slider.config(state='disabled', troughcolor=self.color_palette['background'])
         self.zoom_slider.place(relx=.2, rely=.6, relwidth=.5, relheight=.4)
 
-        update_btn = tk.Button(self.settings_menu, text='Update', font=("Arial", 12), bd=0, bg=self.color_palette['popup'], cursor='hand2', activebackground=self.color_palette['header'])
+        update_btn = tk.Button(self.settings_menu, text='Update', font=("Arial", 12), bd=0, bg=self.color_palette['popup'], cursor='hand2', activebackground=self.color_palette['header'], borderwidth=1)
         update_btn.config(command=lambda: processing_fft_update_btn(self.master.master))
         update_btn.place(relx=.75, rely=.1, relwidth=.2, relheight=.35)
 
-        inverse_btn = tk.Button(self.settings_menu, text='Inverse FFT', font=("Arial", 12), bd=0, bg=self.color_palette['popup'], cursor='hand2', activebackground=self.color_palette['header'])
+        inverse_btn = tk.Button(self.settings_menu, text='Inverse FFT', font=("Arial", 12), bd=0, bg=self.color_palette['popup'], cursor='hand2', activebackground=self.color_palette['header'], borderwidth=1)
         inverse_btn.config(command=lambda: processing_fft_mask_btn(self.master.master))
         inverse_btn.place(relx=.75, rely=.55, relwidth=.2, relheight=.35)
 
@@ -223,11 +224,11 @@ class MaskFrame(CustomFrame):
         self.radius_slider.bind("<ButtonRelease-1>", lambda _: self.update(self.dft))
         self.zoom_slider.bind("<ButtonRelease-1>", lambda _: self.update(self.dft))
 
-        confirm_btn = tk.Button(self.settings_menu, text='Confirm', font=("Arial", 12), bd=0, bg=self.color_palette['popup'], cursor='hand2', activebackground=self.color_palette['header'])
+        confirm_btn = tk.Button(self.settings_menu, text='Confirm', font=("Arial", 12), bd=0, bg=self.color_palette['popup'], cursor='hand2', activebackground=self.color_palette['header'], borderwidth=1)
         confirm_btn.config(command=lambda: processing_fft_ifft_btn(self.master.master))
         confirm_btn.place(relx=.75, rely=.1, relwidth=.2, relheight=.35)
 
-        back_btn = tk.Button(self.settings_menu, text='Back', font=("Arial", 12), bd=0, bg=self.color_palette['popup'], cursor='hand2', activebackground=self.color_palette['header'])
+        back_btn = tk.Button(self.settings_menu, text='Back', font=("Arial", 12), bd=0, bg=self.color_palette['popup'], cursor='hand2', activebackground=self.color_palette['header'], borderwidth=1)
         back_btn.config(command=lambda: processing_fft_btn(self.master.master))
         back_btn.place(relx=.75, rely=.55, relwidth=.2, relheight=.35)
 

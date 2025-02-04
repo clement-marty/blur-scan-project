@@ -159,6 +159,7 @@ class SidebarSubMenu(tk.Frame):
                 cursor='hand2',
                 activebackground='#ffffff',
                 fg='#ffffff',
-                width=20
+                width=20,
+                borderwidth=1,
             )
             self.options[option].place(x=30, y=60 + 30*i, anchor='w')
