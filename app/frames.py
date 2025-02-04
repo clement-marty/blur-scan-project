@@ -3,7 +3,7 @@ import numpy as np
 from PIL import Image, ImageTk
 
 from scripts import fft, mask
-from .button_handler import blank_frame_file_dialog, processing_fft_btn, processing_fft_update_btn, processing_fft_mask_btn, processing_fft_ifft_btn
+from .button_handler import blank_frame_file_dialog, processing_fft_btn, processing_fft_update_btn, processing_fft_mask_btn, processing_fft_ifft_btn, processing_fft_save_btn
 
 
 
@@ -254,12 +254,16 @@ class IFFTFrame(CustomFrame):
     def __init__(self, parent, controller):
         super().__init__(parent, controller)
 
-        self.settings_menu = tk.Frame(self, bg=self.color_palette['popup'])
+        self.settings_menu = tk.Frame(self, bg=self.color_palette['background'])
         self.settings_menu.place(relx=0, rely=.8, relwidth=1, relheight=.2)
 
         back_btn = tk.Button(self.settings_menu, text='Back', font=("Arial", 12), bd=0, bg=self.color_palette['popup'], cursor='hand2', activebackground=self.color_palette['header'])
         back_btn.config(command=lambda: processing_fft_mask_btn(self.master.master))
-        back_btn.place(relx=.75, rely=.55, relwidth=.2, relheight=.35)
+        back_btn.place(relx=.25, rely=.3, relwidth=.2, relheight=.4)
+
+        save_btn = tk.Button(self.settings_menu, text='Save', font=("Arial", 12), bd=0, bg=self.color_palette['popup'], cursor='hand2', activebackground=self.color_palette['header'])
+        save_btn.config(command=lambda: processing_fft_save_btn(self.master.master))
+        save_btn.place(relx=.55, rely=.3, relwidth=.2, relheight=.4)
 
 
     def update(self, dft: np.ndarray, mask_radius: int):
@@ -267,13 +271,10 @@ class IFFTFrame(CustomFrame):
 
         empty_widget = tk.Label(self, bg=self.color_palette['background'])
         empty_widget.place(relx=.05, rely=.05, relwidth=.9, relheight=.7)
-
-        print(self.master.master.selected_image_path)
+        
         dft, _ = fft.dft(self.master.master.selected_image_path)
         masked_dft = mask.apply_circular_mask(dft, mask_radius)
-        idft = fft.inverse_dft(masked_dft)
-        print(np.min(idft), np.max(idft))
+        self.idft = fft.inverse_dft(masked_dft)
 
-        img = fft.inverse_dft(mask.apply_circular_mask(fft.dft(self.master.master.selected_image_path)[0], mask_radius))
-        widget = self.get_image_widget(image=idft, relwidth=.9, relheight=.7)
+        widget = self.get_image_widget(image=self.idft, relwidth=.9, relheight=.7)
         widget.place(relx=.05, rely=.05, relwidth=.9, relheight=.7)

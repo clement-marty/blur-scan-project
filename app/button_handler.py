@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import filedialog
+from PIL import Image
 
 
 
@@ -67,3 +68,10 @@ def processing_fft_ifft_btn(app: tk.Tk):
     app.header_title.config(text='Inverse Fourier Transform (IFFT)')
     app.show_frame('IFFTFrame')
     app.frames['IFFTFrame'].update(dft, mask_radius)
+
+def processing_fft_save_btn(app: tk.Tk):
+    file_path = filedialog.asksaveasfilename(defaultextension='.png', filetypes=[('Image Files', '*.png')])
+    if file_path:
+        idft = app.frames['IFFTFrame'].idft
+        image = Image.fromarray(idft).convert('RGB')
+        image.save(file_path)
