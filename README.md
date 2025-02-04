@@ -4,6 +4,8 @@
 ![Screenshot 1](media/screenshot1.png)
 ![Screenshot 2](media/screenshot2.png)
 
+### The windows executable of the application can be downloaded using [this link](https://drive.google.com/file/d/1OSZP0vVtw4unX_Z-InJirkwirtIBIHwy/view?usp=sharing)
+
 ## Installation
 1. Clone the repository:
     ```bash
