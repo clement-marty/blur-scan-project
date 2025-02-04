@@ -1,8 +1,8 @@
+import os
 import webbrowser
 import configparser
 import tkinter as tk
 from tkinter import ttk
-
 
 from .frames import *
 from .button_handler import *
@@ -10,13 +10,13 @@ from .button_handler import *
 
 class Application(tk.Tk):
 
-    def __init__(self, config: configparser.ConfigParser) -> None:
+    def __init__(self, config: configparser.ConfigParser, basedir: str) -> None:
         tk.Tk.__init__(self)
 
         title = config.get('application', 'title')
         subtitle_line1 = config.get('application', 'subtitle_1')
         subtitle_line2 = config.get('application', 'subtitle_2')
-        icon_file = config.get('application', 'icon')
+        icon_file = os.path.join(basedir, config.get('application', 'icon'))
         github_link = config.get('application', 'github_link')
         self.color_palette = {
             'background': config.get('application.color_palette', 'background'),
