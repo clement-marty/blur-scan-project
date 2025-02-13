@@ -57,7 +57,7 @@ def processing_fft_update_btn(app: tk.Tk):
 
 def processing_fft_mask_btn(app: tk.Tk):
     dft = app.frames['FFTFrame'].dft
-    app.frames['MaskFrame'].radius_slider.set(0)
+    app.frames['MaskFrame'].radius_slider.set(30)
     app.header_title.config(text='Inverse Fourier Transform (IFFT) - Mask Selection')
     app.show_frame('MaskFrame')
     app.frames['MaskFrame'].update(dft)

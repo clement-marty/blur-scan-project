@@ -189,9 +189,9 @@ class MaskFrame(CustomFrame):
         radius_label.place(relx=.05, rely=.3, anchor='w')
         self.radius_slider = tk.Scale(
             self.settings_menu,
-            from_=0,
-            to=100,
-            resolution=1,
+            from_=.1,
+            to=30,
+            resolution=.1,
             orient='horizontal',
             bg=self.color_palette['popup'],
             bd=0,
@@ -200,7 +200,7 @@ class MaskFrame(CustomFrame):
             highlightthickness=0,
             troughcolor=self.color_palette['header']
         )
-        self.radius_slider.set(0)
+        self.radius_slider.set(30)
         self.radius_slider.place(relx=.2, rely=.1, relwidth=.5, relheight=.4)
 
         zoom_label = tk.Label(self.settings_menu, text='Zoom:', font=("Arial", 12), bg=self.color_palette['popup'])
