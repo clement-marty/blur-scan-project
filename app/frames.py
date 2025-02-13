@@ -2,7 +2,7 @@ import tkinter as tk
 import numpy as np
 from PIL import Image, ImageTk
 
-from scripts import fft, mask
+from scripts import fourier_transform as ft
 from .button_handler import blank_frame_file_dialog, processing_fft_btn, processing_fft_update_btn, processing_fft_mask_btn, processing_fft_ifft_btn, processing_fft_save_btn
 
 
@@ -152,7 +152,7 @@ class FFTFrame(CustomFrame):
 
     def update(self, image_path):
 
-        self.dft = fft.dft(image_path, gamma=self.gamma_slider.get())[1]
+        self.dft = ft.dft(image_path, gamma=self.gamma_slider.get())[1]
 
         empty_widget = tk.Label(self, bg=self.color_palette['background'])
         empty_widget.place(relx=.05, rely=.05, relwidth=.9, relheight=.7)
@@ -241,7 +241,8 @@ class MaskFrame(CustomFrame):
 
         self.mask_radius = self.radius_slider.get()
         if self.mask_radius != 0:
-            self.masked_dft = mask.apply_circular_mask(dft, self.mask_radius)
+            # self.masked_dft = mask.apply_mask(dft, mask.gaussian_mask(*dft.shape, self.mask_radius))
+            self.masked_dft = ft.apply_circular_mask(dft, self.mask_radius)
         else:
             self.masked_dft = dft
         
@@ -273,9 +274,8 @@ class IFFTFrame(CustomFrame):
         empty_widget = tk.Label(self, bg=self.color_palette['background'])
         empty_widget.place(relx=.05, rely=.05, relwidth=.9, relheight=.7)
         
-        dft, _ = fft.dft(self.master.master.selected_image_path)
-        masked_dft = mask.apply_circular_mask(dft, mask_radius)
-        self.idft = fft.inverse_dft(masked_dft)
+        radius_px = int(mask_radius * min(dft.shape) / 100)
+        self.idft = ft.wiener_deconvolution(self.master.master.selected_image_path, ft.gaussian_psf(radius_px, 1))
 
         widget = self.get_image_widget(image=self.idft, relwidth=.9, relheight=.7)
         widget.place(relx=.05, rely=.05, relwidth=.9, relheight=.7)

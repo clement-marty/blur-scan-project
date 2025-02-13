@@ -1,8 +1,9 @@
-import numpy as np
 import cv2
+import numpy as np
+from skimage import restoration, color
 
 
-
+## --- COMPUTE THE FAST FOURIER TRANSFORM ---
 def dft(image_path: str, gamma: float =1) -> tuple[np.ndarray, np.ndarray]:
     '''Compute the Discrete Fourier Transform of an image and apply gamma correction to the magnitude spectrum.
 
@@ -32,17 +33,37 @@ def dft(image_path: str, gamma: float =1) -> tuple[np.ndarray, np.ndarray]:
 
 
 
-def inverse_dft(dft: np.ndarray) -> np.ndarray:
-    '''Compute the inverse Discrete Fourier Transform of an image.
-
-    :param np.ndarray dft: The Discrete Fourier Transform of the image.
-    :return np.ndarray: The inverse Discrete Fourier Transform of the image.
+# --- APPLY A CIRCULAR MASK FOR DISPLAY PURPOSES ---
+def apply_circular_mask(image: np.ndarray, radius: float) -> np.ndarray:
+    '''Apply a circular mask to an image.
+    
+    :param np.ndarray image: The image to apply the mask to.
+    :param float radius: The radius of the circular mask (as a percentage of the image size).
+    :return np.ndarray: The masked image.
     '''
-    # Shift the zero frequency component back to the original position
-    dft_ishift = np.fft.ifftshift(dft)
+    w, h = image.shape
+    r = int(radius * min(w, h) / 100)
 
-    # Compute the inverse 2D discrete Fourier Transform
-    idft = np.fft.ifft2(dft_ishift)
-    img = np.abs(idft)
+    x, y = np.ogrid[:w, :h]
+    mask = (x - w // 2) ** 2 + (y - h // 2) ** 2 <= r ** 2
 
-    return img
+    return np.multiply(image, mask)
+
+
+
+
+# --- WIENER DECONVOLUTION ---
+
+def gaussian_psf(size, sigma):
+    # Create a Gaussian Point Spread Function (PSF)
+    psf = cv2.getGaussianKernel(size, sigma)
+    psf = psf @ psf.T
+    return psf
+
+
+def wiener_deconvolution(image_path, psf):
+    image = color.rgb2gray(cv2.imread(image_path))
+
+    # Perform Wiener deconvolution
+    deconvolved, _ = restoration.unsupervised_wiener(image, psf)
+    return (np.clip(deconvolved, 0, 255) * 255).astype(np.uint8)
