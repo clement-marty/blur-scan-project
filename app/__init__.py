@@ -4,8 +4,10 @@ import configparser
 import tkinter as tk
 from tkinter import ttk
 
-from .frames import *
-from .button_handler import *
+from . import frames
+from .custom_frames import *
+from .menu_buttons_handler import MenuButtonsHandler
+
 
 
 class Application(tk.Tk):
@@ -95,6 +97,8 @@ class Application(tk.Tk):
 
         # SUBMENUS
 
+        self.menu_buttons_handler = MenuButtonsHandler(self)
+
         self.submenu_frame = tk.Frame(self.sidebar, bg=self.color_palette['sidebar'])
         self.submenu_frame.place(relx=0, rely=.15, relwidth=1, relheight=.85)
 
@@ -104,8 +108,8 @@ class Application(tk.Tk):
             ['Show', 'Close Image'],
             self.color_palette['sidebar']
         )
-        image_submenu.options['Show'].config(command=lambda: image_show_btn(self))
-        image_submenu.options['Close Image'].config(command=lambda: image_close_btn(self))
+        image_submenu.options['Show'].config(command=self.menu_buttons_handler.image_show)
+        image_submenu.options['Close Image'].config(command=self.menu_buttons_handler.image_close)
         image_submenu.place(x=0, y=0, relwidth=1, relheight=.3)
 
 
@@ -115,7 +119,7 @@ class Application(tk.Tk):
             ['Fourier Transform (FFT)'],
             self.color_palette['sidebar']
         )
-        processing_submenu.options['Fourier Transform (FFT)'].config(command=lambda: processing_fft_btn(self))
+        processing_submenu.options['Fourier Transform (FFT)'].config(command=self.menu_buttons_handler.processing_fft)
         processing_submenu.place(x=0, y=150, relwidth=1, relheight=.3)
 
 
@@ -151,9 +155,10 @@ class Application(tk.Tk):
 
         self.frames = {}
 
-        for frame in CustomFrame.__subclasses__():
-            self.frames[frame.__name__] = frame(container, self)
-            self.frames[frame.__name__].place(relx=0, rely=0, relwidth=1, relheight=1)
+        for frame in frames.__dict__.values():
+            if isinstance(frame, type) and issubclass(frame, CustomFrame):
+                self.frames[frame.__name__] = frame(container, self)
+                self.frames[frame.__name__].place(relx=0, rely=0, relwidth=1, relheight=1)
         self.show_frame('BlankFrame')
 
 
